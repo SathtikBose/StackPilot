@@ -27,6 +27,8 @@ app.get('/api/test-auth', requireAuth, (req, res) => {
   res.json({ message: 'You are authenticated!', user: req.auth });
 });
 
+app.use('/api/dependencies', require('./routes/dependencyRoutes'));
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
