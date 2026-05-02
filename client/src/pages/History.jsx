@@ -140,14 +140,6 @@ const History = () => {
         </div>
       )}
 
-      {history.length > 0 && (
-        <div className="flex justify-center pt-10">
-          <div className="glass px-8 py-4 rounded-2xl flex items-center gap-4 border-primary/20">
-            <Sparkles size={18} className="text-primary" />
-            <span className="text-sm font-bold text-gray-300 uppercase tracking-widest">Premium History Storage Enabled</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

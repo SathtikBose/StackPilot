@@ -13,8 +13,8 @@ const Landing = () => {
       color: 'text-primary'
     },
     {
-      title: 'Smart Setup Guides',
-      desc: 'Get step-by-step implementation instructions tailored to your specific tech stack.',
+      title: 'Implementation Guides',
+      desc: 'Get step-by-step instructions for adding selected dependencies to your build files.',
       icon: Code2,
       color: 'text-secondary'
     },
@@ -31,7 +31,6 @@ const Landing = () => {
       name: 'Free Plan',
       price: '$0',
       credits: '10 Credits',
-      features: ['Basic AI Analysis', 'Standard Setup Steps', 'Community Support'],
       highlight: false,
       button: 'Start Free'
     },
@@ -39,7 +38,6 @@ const Landing = () => {
       name: 'Pro Plan',
       price: '$19',
       credits: 'Unlimited Credits',
-      features: ['Advanced AI Analysis', 'Priority Support', 'Full Architecture Patterns', 'Unlimited Everything'],
       highlight: true,
       button: 'Go Pro'
     }
@@ -56,7 +54,7 @@ const Landing = () => {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border-primary/20 text-primary text-sm font-bold mb-8"
           >
             <Zap size={14} fill="currentColor" />
-            <span>Powering the next generation of Android apps</span>
+            <span>Streamlined Android Dependency Management</span>
           </motion.div>
 
           <motion.h1 
@@ -75,7 +73,7 @@ const Landing = () => {
             transition={{ delay: 0.2 }}
             className="text-gray-400 text-xl md:text-2xl max-w-2xl mx-auto mb-12 font-medium leading-relaxed"
           >
-            Stop wasting hours on dependency hell. Let StackPilot architect your project with AI-driven precision.
+            Stop wasting time on dependency conflicts. Let StackPilot find the right versions for your project.
           </motion.p>
 
           <motion.div 
@@ -126,7 +124,7 @@ const Landing = () => {
         <div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full -z-10"></div>
         <div className="text-center mb-20 space-y-4">
           <h2 className="text-5xl font-black">Simple, Transparent Pricing</h2>
-          <p className="text-gray-400 text-xl font-medium">Choose the plan that fits your ambition.</p>
+          <p className="text-gray-400 text-xl font-medium">Simple credit-based plans for every project.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
@@ -155,14 +153,6 @@ const Landing = () => {
                 <p className="text-primary font-bold mt-4 text-lg">{p.credits}</p>
               </div>
 
-              <ul className="space-y-6 mb-12">
-                {p.features.map((f, j) => (
-                  <li key={j} className="flex items-center gap-4 text-gray-300 font-medium group/item">
-                    <CheckCircle2 size={22} className={p.highlight ? 'text-primary' : 'text-gray-500'} />
-                    <span className="group-hover/item:text-white transition-smooth">{f}</span>
-                  </li>
-                ))}
-              </ul>
 
               <button 
                 onClick={() => navigate('/register')}
@@ -184,7 +174,7 @@ const Landing = () => {
         <div className="glass p-16 rounded-[4rem] text-center space-y-8 relative overflow-hidden group">
           <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-smooth"></div>
           <div className="relative z-10 space-y-4">
-            <h2 className="text-5xl font-black tracking-tight">Ready to revolutionize your workflow?</h2>
+            <h2 className="text-5xl font-black tracking-tight">Ready to streamline your project?</h2>
             <p className="text-gray-400 text-xl font-medium max-w-2xl mx-auto">Join thousands of developers building better Android apps with StackPilot.</p>
             <div className="pt-8 flex flex-col sm:flex-row gap-6 justify-center">
               <button 

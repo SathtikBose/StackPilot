@@ -82,7 +82,7 @@ const Results = () => {
       </div>
       <div className="space-y-2">
         <h2 className="text-2xl font-black">Analyzing Requirements</h2>
-        <p className="text-gray-500 font-medium">Consulting our AI knowledge base for the best matches...</p>
+        <p className="text-gray-500 font-medium">Generating the best matches for your requirements...</p>
       </div>
     </div>
   );

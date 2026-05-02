@@ -437,33 +437,20 @@ const Dashboard = () => {
                   <Sparkles size={160} className="text-primary" />
                 </div>
 
-                <div className="space-y-2 relative z-10">
-                  <div className="inline-block bg-primary text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest mb-2">
-                    Limited Access
+                <div className="space-y-6 relative z-10 text-center">
+                  <div className="inline-block bg-primary text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em] mb-2">
+                    Get Unlimited
                   </div>
-                  <h3 className="text-3xl font-black text-glow">Unlock Pro</h3>
+                  <div className="space-y-2">
+                    <h3 className="text-4xl font-black text-glow uppercase italic">Pro Plan</h3>
+                    <p className="text-primary text-xl font-black uppercase tracking-widest">
+                      Unlimited Credits
+                    </p>
+                  </div>
                   <p className="text-gray-400 text-sm leading-relaxed font-bold">
-                    Join elite Android architects and get unlimited analysis for
-                    all your complex features.
+                    Unlock full access and power your workflow without credit limits.
                   </p>
                 </div>
-
-                <ul className="space-y-5 relative z-10">
-                  {[
-                    "Unlimited Analysis Credits",
-                    "Advanced Design Patterns",
-                    "Priority AI Generation",
-                    "Multi-module Architecture",
-                  ].map((item) => (
-                    <li
-                      key={item}
-                      className="flex items-center gap-4 text-xs font-black text-gray-300"
-                    >
-                      <CheckCircle2 size={18} className="text-primary" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
 
                 <button
                   onClick={handleUpgrade}

@@ -153,7 +153,7 @@ const Setup = () => {
         </div>
         <div className="space-y-2">
           <h4 className="text-2xl font-black text-white">Integration Ready!</h4>
-          <p className="text-gray-400 font-medium">You've successfully implemented the {state.dependency.name} architectural pattern. Build and run your project to verify the results.</p>
+          <p className="text-gray-400 font-medium">You've successfully implemented the {state.dependency.name} feature. Build and run your project to verify the results.</p>
         </div>
         <button 
           onClick={() => navigate('/dashboard')}

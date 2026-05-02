@@ -240,8 +240,8 @@ const Profile = () => {
               
               {user.plan === 'pro' ? (
                 <div className="space-y-6">
-                  <div className="p-6 bg-primary/10 border border-primary/20 rounded-3xl text-primary text-sm font-bold leading-relaxed">
-                    You have unlocked all premium features including unlimited AI requests.
+                  <div className="p-6 bg-primary/10 border border-primary/20 rounded-3xl text-primary text-sm font-black uppercase tracking-widest text-center">
+                    Unlimited AI Analysis Active
                   </div>
                   <button className="w-full py-4 text-gray-500 text-xs font-black uppercase tracking-widest hover:text-white transition-smooth">
                     Manage Billing
@@ -249,17 +249,12 @@ const Profile = () => {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  <p className="text-gray-400 text-sm font-medium leading-relaxed">
-                    Elevate your development experience with the Pro plan.
+                  <p className="text-primary text-lg font-black uppercase tracking-widest text-center">
+                    Unlimited Credits
                   </p>
-                  <ul className="text-left space-y-3">
-                    {['Unlimited Credits', 'Priority AI Models', 'Advanced Guides'].map(item => (
-                      <li key={item} className="flex items-center gap-3 text-xs font-bold text-gray-300">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                  <p className="text-gray-400 text-sm font-medium leading-relaxed">
+                    Upgrade to remove all credit limits.
+                  </p>
                   <button 
                     onClick={handleStripeCheckout}
                     disabled={loading}
