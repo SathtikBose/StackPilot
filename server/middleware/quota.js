@@ -9,19 +9,15 @@ const checkQuota = async (req, res, next) => {
     }
 
     const today = new Date().toISOString().split('T')[0];
-    let usage = await Usage.findOne({ userId: user._id, date: today });
-
-    if (!usage) {
-      usage = await Usage.create({
-        userId: user._id,
-        date: today,
-        remainingCredits: 10
-      });
-    }
+    const usage = await Usage.findOneAndUpdate(
+      { userId: user._id, date: today },
+      { $setOnInsert: { userId: user._id, date: today, remainingCredits: 10 } },
+      { upsert: true, new: true }
+    );
 
     if (usage.remainingCredits <= 0) {
-      return res.status(429).json({ 
-        error: 'Daily quota exceeded. Upgrade to Pro for unlimited access.' 
+      return res.status(403).json({ 
+        error: 'Daily credit limit reached. Upgrade to Pro for unlimited access.' 
       });
     }
 

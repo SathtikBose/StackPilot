@@ -58,10 +58,14 @@ const getDependencies = async (req, res) => {
       dependencies: depList.slice(0, 5)
     });
 
-    // 4. Decrement credits
+    // 4. Atomic decrement credits
     if (req.dbUser.plan === 'free') {
-      req.usage.remainingCredits -= 1;
-      await req.usage.save();
+      const updatedUsage = await Usage.findOneAndUpdate(
+        { _id: req.usage._id },
+        { $inc: { remainingCredits: -1 } },
+        { new: true }
+      );
+      req.usage.remainingCredits = updatedUsage.remainingCredits;
     }
 
     res.json({
@@ -108,10 +112,14 @@ const getMoreAlternatives = async (req, res) => {
     originalResponse.dependencies.push(...altList.slice(0, 3));
     await originalResponse.save();
 
-    // Decrement credits
+    // Atomic decrement credits
     if (req.dbUser.plan === 'free') {
-      req.usage.remainingCredits -= 1;
-      await req.usage.save();
+      const updatedUsage = await Usage.findOneAndUpdate(
+        { _id: req.usage._id },
+        { $inc: { remainingCredits: -1 } },
+        { new: true }
+      );
+      req.usage.remainingCredits = updatedUsage.remainingCredits;
     }
 
     res.json({
