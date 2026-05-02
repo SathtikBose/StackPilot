@@ -12,6 +12,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Profile from './pages/Profile';
+import Support from './pages/Support';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import { useAuth } from './context/AuthContext';
 
 const Layout = ({ children }) => {
@@ -149,9 +152,9 @@ const Layout = ({ children }) => {
             <p className="text-gray-500 text-sm">Empowering Android developers with AI precision.</p>
           </div>
           <div className="flex gap-8 text-sm font-bold text-gray-400">
-            <a href="#" className="hover:text-white">Privacy</a>
-            <a href="#" className="hover:text-white">Terms</a>
-            <a href="#" className="hover:text-white">Support</a>
+            <Link to="/privacy" className="hover:text-white transition-smooth">Privacy</Link>
+            <Link to="/terms" className="hover:text-white transition-smooth">Terms</Link>
+            <Link to="/support" className="hover:text-white transition-smooth">Support</Link>
           </div>
           <p className="text-gray-600 text-sm font-medium">&copy; {new Date().getFullYear()} StackPilot.</p>
         </div>
@@ -192,6 +195,10 @@ function App() {
         <Route path="/setup" element={<ProtectedRoute><Setup /></ProtectedRoute>} />
         <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        
+        <Route path="/support" element={<Support />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
         
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
