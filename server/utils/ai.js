@@ -84,4 +84,49 @@ const generateAlternatives = async (params, existing) => {
   }
 };
 
-module.exports = { generateDependencies, generateAlternatives };
+const generateSetupSteps = async (params) => {
+  const { dependency, feature, kotlinVersion, gradleVersion, uiType, minSdk } = params;
+
+  const prompt = `
+    Generate structured setup steps for the Android dependency: "${dependency}".
+    Feature Context: "${feature}"
+    Project Context: Kotlin ${kotlinVersion}, Gradle ${gradleVersion}, UI ${uiType}, Min SDK ${minSdk}.
+
+    Return ONLY a JSON array of 6 steps. Each step MUST have:
+    - title: String (e.g., "1. Add Dependency (Gradle)")
+    - content: String (Brief description)
+    - code: String (Code snippet if applicable, or empty string)
+    - filename: String (Filename if applicable, or empty string)
+
+    STRICT OUTPUT SECTIONS:
+    1. Add Dependency (Gradle)
+    2. Enable Plugins
+    3. Create Files
+    4. Configuration Changes
+    5. Example Usage
+    6. Testing Instructions
+
+    Return ONLY JSON. No explanation.
+  `;
+
+  try {
+    const response = await axios.post(OPENROUTER_URL, {
+      model: MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      response_format: { type: 'json_object' }
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`
+      }
+    });
+
+    const content = response.data.choices[0].message.content;
+    const jsonStr = content.replace(/```json|```/g, '').trim();
+    return JSON.parse(jsonStr);
+  } catch (error) {
+    console.error('AI Error:', error.response?.data || error.message);
+    throw new Error('Failed to generate setup steps from AI');
+  }
+};
+
+module.exports = { generateDependencies, generateAlternatives, generateSetupSteps };
