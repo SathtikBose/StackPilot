@@ -160,7 +160,7 @@ const Results = () => {
               <p className="text-sm text-gray-400 mb-6 leading-relaxed line-clamp-3 font-medium">{dep.description}</p>
               
               <div className="space-y-3 mb-8">
-                {dep.pros.slice(0, 2).map((pro, i) => (
+                {dep.pros?.slice(0, 2).map((pro, i) => (
                   <div key={i} className="flex items-start gap-3 text-sm text-gray-300 font-medium">
                     <div className="mt-1 bg-green-500/20 p-0.5 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.3)]">
                       <CheckCircle2 size={14} className="text-green-400" />

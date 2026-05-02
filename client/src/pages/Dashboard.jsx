@@ -24,6 +24,7 @@ const Dashboard = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     feature: "",
     kotlinVersion: "1.9.0",
@@ -37,6 +38,14 @@ const Dashboard = () => {
     const init = async () => {
       await Promise.all([fetchUserData(), fetchHistory()]);
       setFetching(false);
+      
+      // Check for success status in URL
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('status') === 'success') {
+        setShowSuccessModal(true);
+        // Clean up the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
     };
     init();
   }, []);
@@ -490,6 +499,43 @@ const Dashboard = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Success Modal */}
+      <AnimatePresence>
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-100 flex items-center justify-center px-4 bg-dark-bg/60 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="glass p-10 rounded-[3rem] max-w-md w-full text-center space-y-8 border-primary/30 shadow-3xl shadow-primary/20 relative overflow-hidden"
+            >
+              <div className="absolute -top-20 -left-20 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
+              
+              <div className="relative z-10">
+                <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6 text-primary animate-bounce-slow">
+                  <Sparkles size={48} />
+                </div>
+                
+                <h2 className="text-4xl font-black tracking-tighter mb-4">
+                  WELCOME TO <span className="text-primary text-glow">PRO</span>
+                </h2>
+                
+                <p className="text-gray-400 font-medium leading-relaxed">
+                  Your account has been upgraded successfully. You now have unlimited architectural recommendations and priority AI generation.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full py-5 bg-primary rounded-2xl font-black text-xl hover:shadow-lg hover:shadow-primary/30 transition-smooth"
+              >
+                Let's Build
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

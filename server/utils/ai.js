@@ -3,6 +3,19 @@ const axios = require('axios');
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const MODEL = 'meta-llama/llama-3-8b-instruct';
 
+const parseAIResponse = (content) => {
+  try {
+    const jsonStr = content.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(jsonStr);
+    // If it's an array, return it. If it's an object with a dependencies/steps key, return that.
+    if (Array.isArray(parsed)) return parsed;
+    return parsed.dependencies || parsed.steps || parsed.results || [];
+  } catch (e) {
+    console.error('AI Parse Error:', e);
+    return [];
+  }
+};
+
 const generateDependencies = async (params) => {
   const { feature, kotlinVersion, gradleVersion, uiType, minSdk, description } = params;
 
@@ -27,7 +40,6 @@ const generateDependencies = async (params) => {
     STRICT RULES:
     1. Return ONLY JSON. No explanation.
     2. Exactly 5 results.
-    3. Ensure versions are compatible with Kotlin ${kotlinVersion} and Gradle ${gradleVersion}.
   `;
 
   try {
@@ -43,10 +55,9 @@ const generateDependencies = async (params) => {
       }
     });
 
-    const content = response.data.choices[0].message.content;
-    const jsonStr = content.replace(/```json|```/g, '').trim();
-    return JSON.parse(jsonStr);
+    return parseAIResponse(response.data.choices[0].message.content);
   } catch (error) {
+    console.error('AI Error:', error.response?.data || error.message);
     throw new Error('Failed to generate dependencies from AI');
   }
 };
@@ -73,10 +84,9 @@ const generateAlternatives = async (params, existing) => {
       }
     });
 
-    const content = response.data.choices[0].message.content;
-    const jsonStr = content.replace(/```json|```/g, '').trim();
-    return JSON.parse(jsonStr);
+    return parseAIResponse(response.data.choices[0].message.content);
   } catch (error) {
+    console.error('AI Error:', error.response?.data || error.message);
     throw new Error('Failed to generate alternatives from AI');
   }
 };
@@ -117,10 +127,9 @@ const generateSetupSteps = async (params) => {
       }
     });
 
-    const content = response.data.choices[0].message.content;
-    const jsonStr = content.replace(/```json|```/g, '').trim();
-    return JSON.parse(jsonStr);
+    return parseAIResponse(response.data.choices[0].message.content);
   } catch (error) {
+    console.error('AI Error:', error.response?.data || error.message);
     throw new Error('Failed to generate setup steps from AI');
   }
 };
