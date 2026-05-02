@@ -5,6 +5,10 @@ const { generateDependencies, generateAlternatives } = require('../utils/ai');
 
 const getDependencies = async (req, res) => {
   const { feature, kotlinVersion, gradleVersion, uiType, minSdk, description } = req.body;
+  
+  console.log('Incoming Dependency Request:', { 
+    feature, kotlinVersion, gradleVersion, uiType, minSdk 
+  });
 
   // Validation
   if (!feature || !kotlinVersion || !gradleVersion || !uiType || !minSdk) {

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
@@ -8,6 +9,7 @@ const Dashboard = () => {
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(false);
   const [credits, setCredits] = useState(null);
+  const [plan, setPlan] = useState('free');
   const [formData, setFormData] = useState({
     feature: '',
     kotlinVersion: '1.9.0',
@@ -18,18 +20,38 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    fetchCredits();
+    fetchUserData();
   }, []);
 
-  const fetchCredits = async () => {
+  const fetchUserData = async () => {
     try {
       const token = await getToken();
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/history`, {
+      // Fetch History & Credits
+      const historyRes = await axios.get(`${import.meta.env.VITE_API_URL}/history`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setCredits(response.data.usage.remainingCredits);
+      setCredits(historyRes.data.usage?.remainingCredits);
+      
+      // Fetch Profile/Plan
+      const profileRes = await axios.get(`${import.meta.env.VITE_API_URL}/user/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setPlan(profileRes.data.plan);
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    try {
+      const token = await getToken();
+      await axios.post(`${import.meta.env.VITE_API_URL}/user/upgrade`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setPlan('pro');
+      alert('Congratulations! You are now a Pro user.');
+    } catch (error) {
+      alert('Upgrade failed. Please try again.');
     }
   };
 
@@ -37,8 +59,6 @@ const Dashboard = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // In a real app, we'd call the API here and pass the results to the results page
-      // Or just navigate to results and let it fetch
       navigate('/results', { state: { formData } });
     } catch (error) {
       console.error(error);
@@ -58,8 +78,19 @@ const Dashboard = () => {
 
       <form onSubmit={handleSubmit} className="glass p-8 rounded-2xl space-y-6 shadow-2xl relative overflow-hidden">
         {credits !== null && (
-          <div className="absolute top-0 right-0 bg-primary/10 px-4 py-1 rounded-bl-xl border-b border-l border-primary/20 text-[10px] font-bold text-primary uppercase tracking-widest">
-            {credits} Credits Remaining
+          <div className="absolute top-0 right-0 flex flex-col items-end">
+            <div className="bg-primary/10 px-4 py-1 rounded-bl-xl border-b border-l border-primary/20 text-[10px] font-bold text-primary uppercase tracking-widest">
+              {plan === 'pro' ? 'Pro Plan - Unlimited' : `${credits} Credits Remaining`}
+            </div>
+            {plan === 'free' && (
+              <button 
+                type="button"
+                onClick={handleUpgrade}
+                className="mr-2 mt-2 px-3 py-1 bg-primary text-[10px] font-bold text-white rounded-lg hover:opacity-90 transition-smooth shadow-lg shadow-primary/20"
+              >
+                UPGRADE TO PRO
+              </button>
+            )}
           </div>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

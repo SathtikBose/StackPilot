@@ -1,5 +1,6 @@
 const Request = require('../models/Request');
 const Response = require('../models/Response');
+const Usage = require('../models/Usage');
 
 const getHistory = async (req, res) => {
   try {

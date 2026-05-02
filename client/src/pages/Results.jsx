@@ -13,12 +13,14 @@ const Results = () => {
   const [requestId, setRequestId] = useState(null);
   const [error, setError] = useState(null);
   const [moreLoading, setMoreLoading] = useState(false);
+  const [credits, setCredits] = useState(null);
 
   useEffect(() => {
     if (!state?.formData) {
       navigate('/dashboard');
       return;
     }
+    console.log('Results page mounted with formData:', state.formData);
     fetchDependencies();
   }, []);
 
@@ -26,12 +28,28 @@ const Results = () => {
     setLoading(true);
     try {
       const token = await getToken();
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/dependencies`, state.formData, {
+      
+      // If we have a requestId but no dependencies yet, we might want to fetch the existing ones
+      // For now, we still POST, but we ensure all fields are present
+      const payload = {
+        feature: state.formData.feature,
+        kotlinVersion: state.formData.kotlinVersion || '1.9.0',
+        gradleVersion: state.formData.gradleVersion || '8.0',
+        uiType: state.formData.uiType || 'Compose',
+        minSdk: state.formData.minSdk || '24',
+        description: state.formData.description || ''
+      };
+
+      console.log('Sending Dependency Request with payload:', payload);
+
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/dependencies`, payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDependencies(response.data.dependencies);
       setRequestId(response.data.requestId);
+      setCredits(response.data.remainingCredits);
     } catch (err) {
+      console.error('Fetch Dependencies Error:', err);
       setError(err.response?.data?.error || 'Failed to fetch recommendations');
     } finally {
       setLoading(false);
@@ -78,7 +96,14 @@ const Results = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-bold mb-2">Recommended for "{state.formData.feature}"</h1>
-          <p className="text-gray-400">Select a dependency to view the setup guide.</p>
+          <div className="flex items-center gap-4">
+            <p className="text-gray-400">Select a dependency to view the setup guide.</p>
+            {credits !== null && (
+              <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20 uppercase tracking-widest">
+                {credits === 'unlimited' ? 'Pro Plan' : `${credits} Credits Left`}
+              </span>
+            )}
+          </div>
         </div>
         <button 
           onClick={handleGenerateMore}

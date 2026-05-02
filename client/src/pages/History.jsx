@@ -91,7 +91,7 @@ const History = () => {
               </div>
               
               <button 
-                onClick={() => navigate('/results', { state: { formData: item.config, requestId: item._id } })}
+                onClick={() => navigate('/results', { state: { formData: { ...item.config, feature: item.feature }, requestId: item._id } })}
                 className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-primary/20 rounded-xl transition-smooth text-sm font-bold border border-border hover:border-primary/50"
               >
                 View Results <ExternalLink size={14} />

@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
-import { SignedIn, SignedOut, UserButton, useUser, useClerk } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, UserButton, useUser, useClerk, SignIn, SignUp } from '@clerk/clerk-react';
 import { Home, History as HistoryIcon, LayoutDashboard, LogOut, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
@@ -167,6 +167,16 @@ function App() {
           <SignedIn>
             <Setup />
           </SignedIn>
+        } />
+        <Route path="/sign-in/*" element={
+          <div className="flex items-center justify-center min-h-[70vh]">
+            <SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" />
+          </div>
+        } />
+        <Route path="/sign-up/*" element={
+          <div className="flex items-center justify-center min-h-[70vh]">
+            <SignUp routing="path" path="/sign-up" signInUrl="/sign-in" />
+          </div>
         } />
         <Route path="/history" element={
           <SignedIn>
