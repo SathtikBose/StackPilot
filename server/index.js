@@ -29,6 +29,7 @@ app.get('/api/test-auth', requireAuth, (req, res) => {
 
 app.use('/api/dependencies', require('./routes/dependencyRoutes'));
 app.use('/api/setup', require('./routes/setupRoutes'));
+app.use('/api/history', require('./routes/historyRoutes'));
 
 // Start Server
 app.listen(PORT, () => {
