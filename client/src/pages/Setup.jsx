@@ -73,7 +73,7 @@ const Setup = () => {
       <div className="space-y-12">
         {steps.map((step, index) => (
           <div key={index} className="relative pl-12 border-l border-border/50">
-            <div className="absolute left-[-16px] top-0 w-8 h-8 rounded-full bg-[#0a0a0a] border border-border flex items-center justify-center font-bold text-primary text-sm shadow-xl">
+            <div className="absolute left-[-16px] top-0 w-8 h-8 rounded-full bg-dark-bg border border-border flex items-center justify-center font-bold text-primary text-sm shadow-xl">
               {index + 1}
             </div>
             
@@ -99,7 +99,7 @@ const Setup = () => {
                     {copied === index ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                   </button>
                 </div>
-                <pre className="bg-[#1a1a1a] p-6 rounded-2xl border border-border overflow-x-auto font-mono text-sm leading-relaxed text-gray-300">
+                <pre className="bg-card-bg p-6 rounded-2xl border border-border overflow-x-auto font-mono text-sm leading-relaxed text-gray-300">
                   <code>{step.code}</code>
                 </pre>
               </div>

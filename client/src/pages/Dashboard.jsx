@@ -50,7 +50,7 @@ const Dashboard = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 animate-in fade-in duration-700">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold mb-4 bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
           What are we building today?
         </h1>
         <p className="text-gray-400">Enter your feature requirements and get tailored dependency recommendations.</p>
@@ -69,7 +69,7 @@ const Dashboard = () => {
               required
               type="text" 
               placeholder="e.g., Local Database, Image Loading, Authentication"
-              className="w-full bg-[#0a0a0a] border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-smooth"
+              className="w-full bg-dark-bg border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-smooth"
               value={formData.feature}
               onChange={(e) => setFormData({...formData, feature: e.target.value})}
             />
@@ -80,7 +80,7 @@ const Dashboard = () => {
             <input 
               required
               type="text" 
-              className="w-full bg-[#0a0a0a] border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-smooth"
+              className="w-full bg-dark-bg border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-smooth"
               value={formData.kotlinVersion}
               onChange={(e) => setFormData({...formData, kotlinVersion: e.target.value})}
             />
@@ -91,7 +91,7 @@ const Dashboard = () => {
             <input 
               required
               type="text" 
-              className="w-full bg-[#0a0a0a] border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-smooth"
+              className="w-full bg-dark-bg border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-smooth"
               value={formData.gradleVersion}
               onChange={(e) => setFormData({...formData, gradleVersion: e.target.value})}
             />
@@ -100,7 +100,7 @@ const Dashboard = () => {
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-2">UI Framework</label>
             <select 
-              className="w-full bg-[#0a0a0a] border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-smooth"
+              className="w-full bg-dark-bg border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-smooth"
               value={formData.uiType}
               onChange={(e) => setFormData({...formData, uiType: e.target.value})}
             >
@@ -114,7 +114,7 @@ const Dashboard = () => {
             <input 
               required
               type="number" 
-              className="w-full bg-[#0a0a0a] border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-smooth"
+              className="w-full bg-dark-bg border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-smooth"
               value={formData.minSdk}
               onChange={(e) => setFormData({...formData, minSdk: e.target.value})}
             />
@@ -125,7 +125,7 @@ const Dashboard = () => {
             <textarea 
               rows="3"
               placeholder="Any specific requirements or constraints?"
-              className="w-full bg-[#0a0a0a] border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-smooth"
+              className="w-full bg-dark-bg border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-smooth"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
             ></textarea>

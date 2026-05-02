@@ -20,9 +20,9 @@ const Layout = ({ children }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-gray-100 flex flex-col">
+    <div className="min-h-screen bg-dark-bg text-gray-100 flex flex-col">
       {/* Navbar */}
-      <nav className="border-b border-border p-4 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-50">
+      <nav className="border-b border-border p-4 bg-dark-bg/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <Link to="/" className="text-2xl font-black tracking-tighter flex items-center gap-2">
             <span className="bg-primary p-1 rounded-lg text-white">SP</span>
@@ -42,7 +42,7 @@ const Layout = ({ children }) => {
                   {link.name}
                 </Link>
               ))}
-              <div className="h-6 w-[1px] bg-border mx-2"></div>
+              <div className="h-6 w-px bg-border mx-2"></div>
               <UserButton afterSignOutUrl="/" />
             </SignedIn>
           </div>
@@ -67,14 +67,14 @@ const Layout = ({ children }) => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-[#0a0a0a] border-b border-border p-4 space-y-4 animate-in slide-in-from-top-2">
+          <div className="md:hidden absolute top-full left-0 w-full bg-dark-bg border-b border-border p-4 space-y-4 animate-in slide-in-from-top-2">
             <SignedIn>
               {navLinks.map((link) => (
                 <Link 
                   key={link.path} 
                   to={link.path} 
                   onClick={() => setIsMenuOpen(false)}
-                  className="block text-lg font-medium text-gray-400 hover:text-white transition-smooth flex items-center gap-2"
+                  className="text-lg font-medium text-gray-400 hover:text-white transition-smooth flex items-center gap-2"
                 >
                   <link.icon size={20} />
                   {link.name}
@@ -90,7 +90,7 @@ const Layout = ({ children }) => {
       </nav>
 
       {/* Content */}
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="grow container mx-auto px-4 py-8">
         {children}
       </main>
 
@@ -109,7 +109,7 @@ const Landing = () => {
       <div className="space-y-4">
         <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight">
           Modern Android Development <br/> 
-          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Accelerated.</span>
+          <span className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">Accelerated.</span>
         </h1>
         <p className="text-xl text-gray-400 max-w-2xl mx-auto">
           Stop guessing dependencies. Get AI-powered recommendations and structured implementation guides in seconds.
