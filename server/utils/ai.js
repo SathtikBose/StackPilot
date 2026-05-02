@@ -44,11 +44,9 @@ const generateDependencies = async (params) => {
     });
 
     const content = response.data.choices[0].message.content;
-    // Some models might wrap JSON in backticks, let's clean it
     const jsonStr = content.replace(/```json|```/g, '').trim();
     return JSON.parse(jsonStr);
   } catch (error) {
-    console.error('AI Error:', error.response?.data || error.message);
     throw new Error('Failed to generate dependencies from AI');
   }
 };
@@ -79,7 +77,6 @@ const generateAlternatives = async (params, existing) => {
     const jsonStr = content.replace(/```json|```/g, '').trim();
     return JSON.parse(jsonStr);
   } catch (error) {
-    console.error('AI Error:', error.response?.data || error.message);
     throw new Error('Failed to generate alternatives from AI');
   }
 };
@@ -124,7 +121,6 @@ const generateSetupSteps = async (params) => {
     const jsonStr = content.replace(/```json|```/g, '').trim();
     return JSON.parse(jsonStr);
   } catch (error) {
-    console.error('AI Error:', error.response?.data || error.message);
     throw new Error('Failed to generate setup steps from AI');
   }
 };

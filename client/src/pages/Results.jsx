@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
-import { ChevronRight, Plus, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, Plus, AlertCircle, CheckCircle2, Sparkles, ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Results = () => {
-  const { getToken } = useAuth();
   const { state } = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -14,23 +13,24 @@ const Results = () => {
   const [error, setError] = useState(null);
   const [moreLoading, setMoreLoading] = useState(false);
   const [credits, setCredits] = useState(null);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
     if (!state?.formData) {
       navigate('/dashboard');
       return;
     }
-    console.log('Results page mounted with formData:', state.formData);
+    
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+    
     fetchDependencies();
   }, []);
 
   const fetchDependencies = async () => {
     setLoading(true);
     try {
-      const token = await getToken();
-      
-      // If we have a requestId but no dependencies yet, we might want to fetch the existing ones
-      // For now, we still POST, but we ensure all fields are present
+      const token = localStorage.getItem('token');
       const payload = {
         feature: state.formData.feature,
         kotlinVersion: state.formData.kotlinVersion || '1.9.0',
@@ -40,8 +40,6 @@ const Results = () => {
         description: state.formData.description || ''
       };
 
-      console.log('Sending Dependency Request with payload:', payload);
-
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/dependencies`, payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -49,7 +47,6 @@ const Results = () => {
       setRequestId(response.data.requestId);
       setCredits(response.data.remainingCredits);
     } catch (err) {
-      console.error('Fetch Dependencies Error:', err);
       setError(err.response?.data?.error || 'Failed to fetch recommendations');
     } finally {
       setLoading(false);
@@ -59,7 +56,7 @@ const Results = () => {
   const handleGenerateMore = async () => {
     setMoreLoading(true);
     try {
-      const token = await getToken();
+      const token = localStorage.getItem('token');
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/dependencies/more`, { requestId }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -69,84 +66,129 @@ const Results = () => {
         alert(response.data.message || 'No more alternatives available');
       }
     } catch (err) {
-      console.error(err);
+      // Error handled
     } finally {
       setMoreLoading(false);
     }
   };
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-      <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-gray-400 animate-pulse">Consulting the AI experts...</p>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
+      <div className="relative">
+        <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary">
+          <Sparkles size={24} />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <h2 className="text-2xl font-black">Analyzing Requirements</h2>
+        <p className="text-gray-500 font-medium">Consulting our AI knowledge base for the best matches...</p>
+      </div>
     </div>
   );
 
   if (error) return (
-    <div className="max-w-md mx-auto mt-20 text-center p-8 glass rounded-2xl">
-      <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
-      <h2 className="text-xl font-bold mb-2">Oops!</h2>
-      <p className="text-gray-400 mb-6">{error}</p>
-      <button onClick={() => navigate('/dashboard')} className="text-primary hover:underline">Go Back</button>
+    <div className="max-w-md mx-auto mt-20 text-center p-12 glass rounded-[2.5rem] space-y-6">
+      <div className="bg-red-500/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto text-red-500">
+        <AlertCircle size={32} />
+      </div>
+      <div className="space-y-2">
+        <h2 className="text-2xl font-black">Analysis Failed</h2>
+        <p className="text-gray-400 leading-relaxed">{error}</p>
+      </div>
+      <button 
+        onClick={() => navigate('/dashboard')} 
+        className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-white/10 transition-smooth flex items-center justify-center gap-2"
+      >
+        <ArrowLeft size={18} /> Go Back to Dashboard
+      </button>
     </div>
   );
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-8 animate-in slide-in-from-bottom-4 duration-500">
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Recommended for "{state.formData.feature}"</h1>
-          <div className="flex items-center gap-4">
-            <p className="text-gray-400">Select a dependency to view the setup guide.</p>
-            {credits !== null && (
-              <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20 uppercase tracking-widest">
-                {credits === 'unlimited' ? 'Pro Plan' : `${credits} Credits Left`}
-              </span>
-            )}
-          </div>
+    <div className="max-w-7xl mx-auto pb-20 space-y-10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-8">
+        <div className="space-y-2">
+          <button 
+            onClick={() => navigate('/dashboard')}
+            className="text-primary text-sm font-bold flex items-center gap-2 hover:gap-3 transition-smooth mb-4"
+          >
+            <ArrowLeft size={16} /> Back to Dashboard
+          </button>
+          <h1 className="text-4xl font-black tracking-tight">
+            Recommendations for <span className="text-primary italic">"{state.formData.feature}"</span>
+          </h1>
+          <p className="text-gray-500 font-medium">We've found {dependencies.length} architectural matches for your project.</p>
         </div>
+
         <button 
           onClick={handleGenerateMore}
           disabled={moreLoading}
-          className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-white/5 transition-smooth disabled:opacity-50"
+          className="flex items-center gap-3 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-white/10 hover:border-primary/30 transition-smooth disabled:opacity-50 group"
         >
-          {moreLoading ? 'Searching...' : <><Plus size={18} /> Generate More</>}
+          {moreLoading ? (
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+          ) : (
+            <><Plus size={20} className="text-primary group-hover:rotate-90 transition-smooth" /> Generate Alternatives</>
+          )}
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {dependencies.map((dep, index) => (
-          <div 
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
             key={index}
-            className="glass p-6 rounded-2xl flex flex-col justify-between hover:border-primary/50 transition-smooth group cursor-pointer"
+            className="glass p-8 rounded-4xl flex flex-col justify-between hover:glass-hover transition-smooth group cursor-pointer relative overflow-hidden"
             onClick={() => navigate('/setup', { state: { requestId, dependency: dep } })}
           >
-            <div>
-              <div className="flex justify-between items-start mb-4">
-                <span className="bg-white/5 text-xs font-mono px-2 py-1 rounded border border-border text-gray-300">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-smooth"></div>
+            
+            <div className="relative z-10">
+              <div className="flex justify-between items-center mb-6">
+                <span className="bg-primary/10 text-[10px] font-black px-3 py-1.5 rounded-full border border-primary/20 text-primary uppercase tracking-[0.2em] shadow-sm">
                   {dep.rank_tag}
                 </span>
-                <ChevronRight size={18} className="text-gray-600 group-hover:text-primary transition-smooth" />
+                <div className="p-2 rounded-xl bg-white/5 text-gray-500 group-hover:text-primary group-hover:bg-primary/10 transition-smooth shadow-inner">
+                  <ChevronRight size={18} />
+                </div>
               </div>
-              <h3 className="text-lg font-bold mb-2 break-all">{dep.name}</h3>
-              <p className="text-sm text-gray-400 mb-4 line-clamp-3">{dep.description}</p>
+
+              <h3 className="text-xl font-black mb-3 break-all leading-tight group-hover:text-primary transition-smooth text-glow">{dep.name}</h3>
+              <p className="text-sm text-gray-400 mb-6 leading-relaxed line-clamp-3 font-medium">{dep.description}</p>
               
-              <div className="space-y-2 mb-6">
+              <div className="space-y-3 mb-8">
                 {dep.pros.slice(0, 2).map((pro, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-green-400/80">
-                    <CheckCircle2 size={12} /> {pro}
+                  <div key={i} className="flex items-start gap-3 text-sm text-gray-300 font-medium">
+                    <div className="mt-1 bg-green-500/20 p-0.5 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.3)]">
+                      <CheckCircle2 size={14} className="text-green-400" />
+                    </div>
+                    {pro}
                   </div>
                 ))}
               </div>
             </div>
             
-            <div className="pt-4 border-t border-border flex justify-between items-center">
-              <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Best For</span>
-              <span className="text-xs text-primary font-medium">{dep.best_for}</span>
+            <div className="pt-6 border-t border-white/5 flex justify-between items-center relative z-10">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black">UseCase</span>
+              <span className="text-[10px] text-primary font-black bg-primary/5 px-3 py-1 rounded-lg border border-primary/10 uppercase tracking-widest">{dep.best_for}</span>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
+
+      {credits !== null && (
+        <div className="flex justify-center pt-10">
+          <div className="glass px-8 py-4 rounded-2xl flex items-center gap-4 border-primary/20">
+            <Sparkles size={18} className="text-primary" />
+            <span className="text-sm font-bold text-gray-300 uppercase tracking-widest">
+              {credits === 'unlimited' ? 'Pro Plan: Unlimited Analysis' : `${credits} Credits Remaining`}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

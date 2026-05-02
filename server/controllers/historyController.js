@@ -24,12 +24,22 @@ const getHistory = async (req, res) => {
     const today = new Date().toISOString().split('T')[0];
     const usage = await Usage.findOne({ userId, date: today });
 
+    // Deduplicate history items (filter out identical requests within 60 seconds)
+    const uniqueHistory = [];
+    history.forEach(item => {
+      const isDuplicate = uniqueHistory.some(u => 
+        u.feature === item.feature && 
+        JSON.stringify(u.config) === JSON.stringify(item.config) &&
+        Math.abs(new Date(u.createdAt) - new Date(item.createdAt)) < 60000
+      );
+      if (!isDuplicate) uniqueHistory.push(item);
+    });
+
     res.json({ 
-      history,
+      history: uniqueHistory,
       usage: usage || { remainingCredits: 10 }
     });
   } catch (error) {
-    console.error('History Error:', error);
     res.status(500).json({ error: 'Failed to fetch history' });
   }
 };

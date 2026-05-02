@@ -1,9 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
-const { requireAuth } = require('./middleware/auth');
 const connectDB = require('./config/db');
+const { requireAuth } = require('./middleware/auth');
 
 // Connect to Database
 connectDB();
@@ -23,10 +22,8 @@ app.get('/', (req, res) => {
   res.json({ message: 'StackPilot API is running' });
 });
 
-app.get('/api/test-auth', requireAuth, (req, res) => {
-  res.json({ message: 'You are authenticated!', user: req.auth });
-});
-
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/dependencies', require('./routes/dependencyRoutes'));
 app.use('/api/setup', require('./routes/setupRoutes'));
 app.use('/api/history', require('./routes/historyRoutes'));

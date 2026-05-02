@@ -2,30 +2,40 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const { requireAuth } = require('../middleware/auth');
-const { getOrCreateUser } = require('../utils/user');
 
 // Get current user profile
 router.get('/profile', requireAuth, async (req, res) => {
   try {
-    const { userId: clerkId } = req.auth;
-    const email = 'user@example.com'; // Default email if not found
-    const user = await getOrCreateUser(clerkId, email);
-    res.json(user);
+    const user = await User.findById(req.user.id).select('-password').lean();
+    
+    // Fetch remaining credits
+    const today = new Date().toISOString().split('T')[0];
+    const Usage = require('../models/Usage');
+    let usage = await Usage.findOne({ userId: req.user.id, date: today });
+    
+    if (!usage) {
+      usage = await Usage.create({ userId: req.user.id, date: today });
+    }
+
+    res.json({
+      ...user,
+      credits: usage.remainingCredits
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Mock upgrade to Pro
-router.post('/upgrade', requireAuth, async (req, res) => {
+// Update profile
+router.put('/profile', requireAuth, async (req, res) => {
   try {
-    const { userId: clerkId } = req.auth;
-    const user = await User.findOneAndUpdate(
-      { clerkId },
-      { plan: 'pro' },
+    const { name } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { name },
       { new: true }
-    );
-    res.json({ message: 'Successfully upgraded to Pro', user });
+    ).select('-password');
+    res.json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

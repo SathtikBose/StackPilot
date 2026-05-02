@@ -6,22 +6,43 @@ const { generateDependencies, generateAlternatives } = require('../utils/ai');
 const getDependencies = async (req, res) => {
   const { feature, kotlinVersion, gradleVersion, uiType, minSdk, description } = req.body;
   
-  console.log('Incoming Dependency Request:', { 
-    feature, kotlinVersion, gradleVersion, uiType, minSdk 
-  });
-
   // Validation
   if (!feature || !kotlinVersion || !gradleVersion || !uiType || !minSdk) {
     return res.status(400).json({ error: 'Missing required inputs' });
   }
 
   try {
-    // 1. Create Request record
-    const newRequest = await Request.create({
+    const tenSecondsAgo = new Date(Date.now() - 10000);
+    // 1. Atomically find or create the Request record to prevent race conditions
+    // We check for a matching request within the last 10 seconds
+    let newRequest = await Request.findOne({
       userId: req.dbUser._id,
       feature,
-      config: { kotlinVersion, gradleVersion, uiType, minSdk, description }
+      'config.kotlinVersion': kotlinVersion,
+      'config.gradleVersion': gradleVersion,
+      'config.uiType': uiType,
+      'config.minSdk': minSdk,
+      createdAt: { $gte: tenSecondsAgo }
     });
+    
+    let isBrandNew = false;
+    if (!newRequest) {
+      newRequest = await Request.create({
+        userId: req.dbUser._id,
+        feature,
+        config: { kotlinVersion, gradleVersion, uiType, minSdk, description }
+      });
+      isBrandNew = true;
+    } else {
+      const existingResponse = await Response.findOne({ requestId: newRequest._id });
+      if (existingResponse) {
+        return res.json({
+          requestId: newRequest._id,
+          dependencies: existingResponse.dependencies,
+          remainingCredits: req.usage?.remainingCredits ?? 'unlimited'
+        });
+      }
+    }
 
     // 2. Call AI
     const dependencies = await generateDependencies({
@@ -49,7 +70,6 @@ const getDependencies = async (req, res) => {
       remainingCredits: req.usage?.remainingCredits ?? 'unlimited'
     });
   } catch (error) {
-    console.error('Dependency Controller Error:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -99,7 +119,6 @@ const getMoreAlternatives = async (req, res) => {
       remainingCredits: req.usage?.remainingCredits ?? 'unlimited'
     });
   } catch (error) {
-    console.error('Alternatives Controller Error:', error);
     res.status(500).json({ error: error.message });
   }
 };

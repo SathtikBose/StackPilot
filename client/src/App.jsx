@@ -1,188 +1,198 @@
-import { Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
-import { SignedIn, SignedOut, UserButton, useUser, useClerk, SignIn, SignUp } from '@clerk/clerk-react';
-import { Home, History as HistoryIcon, LayoutDashboard, LogOut, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { Routes, Route, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
+import { Home, History as HistoryIcon, LayoutDashboard, LogOut, Menu, X, User, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import Dashboard from './pages/Dashboard';
 import Results from './pages/Results';
 import Setup from './pages/Setup';
 import History from './pages/History';
+import Landing from './pages/Landing';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import Profile from './pages/Profile';
+import { useAuth } from './context/AuthContext';
 
 const Layout = ({ children }) => {
-  const { user } = useUser();
-  const { signOut } = useClerk();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  const navLinks = [
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location]);
+
+  const navLinks = user ? [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'History', path: '/history', icon: HistoryIcon },
-  ];
+    { name: 'Profile', path: '/profile', icon: User },
+  ] : [];
 
   return (
-    <div className="min-h-screen bg-dark-bg text-gray-100 flex flex-col">
+    <div className="min-h-screen bg-dark-bg text-gray-100 flex flex-col font-sans selection:bg-primary/30 relative">
+      {/* Background Orbs */}
+      <div className="bg-glow">
+        <div className="glow-orb" style={{ top: '-10%', left: '-10%' }}></div>
+        <div className="glow-orb" style={{ bottom: '-10%', right: '-10%', animationDelay: '-5s', width: '800px', height: '800px' }}></div>
+      </div>
+
       {/* Navbar */}
-      <nav className="border-b border-border p-4 bg-dark-bg/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link to="/" className="text-2xl font-black tracking-tighter flex items-center gap-2">
-            <span className="bg-primary p-1 rounded-lg text-white">SP</span>
-            <span>Stack<span className="text-primary">Pilot</span></span>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 border-b ${
+        scrolled ? 'bg-dark-bg/80 backdrop-blur-xl border-white/10 py-3' : 'bg-transparent border-transparent py-6'
+      }`}>
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-6">
+          <Link to="/" className="text-3xl font-black tracking-tighter flex items-center gap-2 group">
+            <div className="bg-primary p-1.5 rounded-xl text-white group-hover:rotate-12 transition-smooth shadow-lg shadow-primary/20">
+              <Sparkles size={24} />
+            </div>
+            <span className="group-hover:text-primary transition-smooth">
+              Stack<span className="text-primary group-hover:text-white transition-smooth">Pilot</span>
+            </span>
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            <SignedIn>
-              {navLinks.map((link) => (
-                <Link 
-                  key={link.path} 
-                  to={link.path} 
-                  className="text-sm font-medium text-gray-400 hover:text-white transition-smooth flex items-center gap-2"
-                >
-                  <link.icon size={16} />
-                  {link.name}
+          <div className="hidden md:flex items-center gap-10">
+            {navLinks.map((link) => (
+              <Link 
+                key={link.path} 
+                to={link.path} 
+                className={`text-sm font-bold transition-smooth flex items-center gap-2 ${
+                  location.pathname === link.path ? 'text-primary' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <link.icon size={18} />
+                {link.name}
+              </Link>
+            ))}
+            {!user ? (
+              <div className="flex items-center gap-4">
+                <Link to="/login" className="text-sm font-bold text-gray-400 hover:text-white">Sign In</Link>
+                <Link to="/register" className="bg-primary px-6 py-2.5 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-primary/20 transition-smooth">
+                  Get Started
                 </Link>
-              ))}
-              <div className="h-6 w-px bg-border mx-2"></div>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
+              </div>
+            ) : (
+              <button 
+                onClick={logout}
+                className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:bg-red-500 hover:text-white hover:border-red-500 transition-smooth"
+                title="Logout"
+              >
+                <LogOut size={18} />
+              </button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-4">
-            <SignedIn>
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-400">
-                {isMenuOpen ? <X /> : <Menu />}
-              </button>
-            </SignedIn>
-            <SignedOut>
-              <button 
-                onClick={() => navigate('/sign-in')}
-                className="text-sm font-bold bg-primary px-4 py-2 rounded-lg"
-              >
-                Sign In
-              </button>
-            </SignedOut>
-          </div>
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-gray-400 p-2 glass rounded-xl">
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-dark-bg border-b border-border p-4 space-y-4 animate-in slide-in-from-top-2">
-            <SignedIn>
-              {navLinks.map((link) => (
-                <Link 
-                  key={link.path} 
-                  to={link.path} 
-                  onClick={() => setIsMenuOpen(false)}
-                  className="text-lg font-medium text-gray-400 hover:text-white transition-smooth flex items-center gap-2"
-                >
-                  <link.icon size={20} />
-                  {link.name}
-                </Link>
-              ))}
-              <div className="pt-4 border-t border-border flex items-center justify-between">
-                <span className="text-sm text-gray-400">{user?.primaryEmailAddress?.emailAddress}</span>
-                <UserButton afterSignOutUrl="/" />
-              </div>
-            </SignedIn>
-          </div>
-        )}
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="md:hidden absolute top-full left-0 w-full bg-dark-bg/95 backdrop-blur-2xl border-b border-white/10 p-6 space-y-6 shadow-2xl"
+            >
+              {user ? (
+                <>
+                  {navLinks.map((link) => (
+                    <Link 
+                      key={link.path} 
+                      to={link.path} 
+                      className="text-xl font-bold text-gray-300 hover:text-primary flex items-center gap-4 py-2"
+                    >
+                      <link.icon size={24} />
+                      {link.name}
+                    </Link>
+                  ))}
+                  <button 
+                    onClick={logout}
+                    className="w-full mt-4 flex items-center gap-4 py-4 px-6 bg-red-500/10 text-red-400 rounded-2xl font-bold"
+                  >
+                    <LogOut size={24} /> Logout
+                  </button>
+                </>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  <Link to="/login" className="py-4 text-center font-bold glass rounded-2xl">Sign In</Link>
+                  <Link to="/register" className="py-4 text-center font-bold bg-primary rounded-2xl">Get Started</Link>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* Content */}
-      <main className="grow container mx-auto px-4 py-8">
+      <main className="grow pt-32 px-4 relative z-10">
         {children}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-8 text-center text-gray-600 text-sm">
-        <p>&copy; {new Date().getFullYear()} StackPilot. Fly through dependencies.</p>
+      <footer className="py-12 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
+          <div className="space-y-2">
+            <Link to="/" className="text-xl font-black tracking-tighter">StackPilot</Link>
+            <p className="text-gray-500 text-sm">Empowering Android developers with AI precision.</p>
+          </div>
+          <div className="flex gap-8 text-sm font-bold text-gray-400">
+            <a href="#" className="hover:text-white">Privacy</a>
+            <a href="#" className="hover:text-white">Terms</a>
+            <a href="#" className="hover:text-white">Support</a>
+          </div>
+          <p className="text-gray-600 text-sm font-medium">&copy; {new Date().getFullYear()} StackPilot.</p>
+        </div>
       </footer>
     </div>
   );
 };
 
-const Landing = () => {
-  const navigate = useNavigate();
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center space-y-8 max-w-4xl mx-auto">
-      <div className="space-y-4">
-        <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight">
-          Modern Android Development <br/> 
-          <span className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">Accelerated.</span>
-        </h1>
-        <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-          Stop guessing dependencies. Get AI-powered recommendations and structured implementation guides in seconds.
-        </p>
-      </div>
-      
-      <div className="flex gap-4">
-        <button 
-          onClick={() => navigate('/sign-up')}
-          className="px-8 py-4 bg-primary rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-primary/30 transition-smooth"
-        >
-          Start Building Free
-        </button>
-        <button className="px-8 py-4 bg-white/5 border border-border rounded-2xl font-bold text-lg hover:bg-white/10 transition-smooth">
-          View Templates
-        </button>
-      </div>
+const AuthRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (user) return <Navigate to="/dashboard" />;
+  return children;
+};
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full pt-20">
-        {['Room', 'Retrofit', 'Hilt', 'Compose'].map(tech => (
-          <div key={tech} className="glass py-4 rounded-xl text-gray-500 font-mono text-sm border-dashed border-border/50">
-            {tech}
-          </div>
-        ))}
-      </div>
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
+  if (!user) return <Navigate to="/login" />;
+  return children;
 };
 
 function App() {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={
-          <>
-            <SignedIn>
-              <Navigate to="/dashboard" />
-            </SignedIn>
-            <SignedOut>
-              <Landing />
-            </SignedOut>
-          </>
-        } />
-        <Route path="/dashboard" element={
-          <SignedIn>
-            <Dashboard />
-          </SignedIn>
-        } />
-        <Route path="/results" element={
-          <SignedIn>
-            <Results />
-          </SignedIn>
-        } />
-        <Route path="/setup" element={
-          <SignedIn>
-            <Setup />
-          </SignedIn>
-        } />
-        <Route path="/sign-in/*" element={
-          <div className="flex items-center justify-center min-h-[70vh]">
-            <SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" />
-          </div>
-        } />
-        <Route path="/sign-up/*" element={
-          <div className="flex items-center justify-center min-h-[70vh]">
-            <SignUp routing="path" path="/sign-up" signInUrl="/sign-in" />
-          </div>
-        } />
-        <Route path="/history" element={
-          <SignedIn>
-            <History />
-          </SignedIn>
-        } />
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
+        <Route path="/register" element={<AuthRoute><Register /></AuthRoute>} />
+        <Route path="/forgot-password" element={<AuthRoute><ForgotPassword /></AuthRoute>} />
+        
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/results" element={<ProtectedRoute><Results /></ProtectedRoute>} />
+        <Route path="/setup" element={<ProtectedRoute><Setup /></ProtectedRoute>} />
+        <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Layout>

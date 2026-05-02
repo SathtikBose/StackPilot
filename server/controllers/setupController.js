@@ -46,13 +46,19 @@ const getSetupSteps = async (req, res) => {
 
     const steps = Array.isArray(setupSteps) ? setupSteps : (setupSteps.steps || []);
 
-    // Update response with setup steps
-    response.setupSteps = steps;
-    await response.save();
+    // Update response with setup steps using findOneAndUpdate to avoid VersionError
+    const updatedResponse = await Response.findOneAndUpdate(
+      { requestId },
+      { $set: { setupSteps: steps } },
+      { new: true }
+    );
 
-    res.json({ setupSteps: steps });
+    if (!updatedResponse) {
+      return res.status(404).json({ error: 'Response not found' });
+    }
+
+    res.json({ setupSteps: updatedResponse.setupSteps });
   } catch (error) {
-    console.error('Setup Controller Error:', error);
     res.status(500).json({ error: error.message });
   }
 };
