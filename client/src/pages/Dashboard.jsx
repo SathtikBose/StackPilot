@@ -82,7 +82,9 @@ const Dashboard = () => {
         window.location.href = res.data.url;
       }
     } catch (error) {
-      alert("Demo Mode: Failed to initiate upgrade. Please check console.");
+      console.error("Upgrade Error:", error);
+      const message = error.response?.data?.error || error.message || "Failed to initiate upgrade";
+      alert(`Upgrade Error: ${message}. Check console for details.`);
     }
   };
 

@@ -12,9 +12,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Profile from './pages/Profile';
-import Support from './pages/Support';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import Support from './pages/Support';
+import NotFound from './pages/NotFound';
 import { useAuth } from './context/AuthContext';
 
 const Layout = ({ children }) => {
@@ -200,7 +201,7 @@ function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>
   );

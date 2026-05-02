@@ -1,20 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { requireAuth } = require('../middleware/auth');
 const User = require('../models/User');
 
 router.post('/create-checkout-session', requireAuth, async (req, res) => {
   try {
-    // Demo Mode for College Project: Skip actual Stripe call and upgrade user immediately
-    if (process.env.DEMO_MODE === 'true') {
+    const isDemo = process.env.DEMO_MODE === 'true';
+    
+    // 1. Handle Demo Mode (College Project Presentation)
+    if (isDemo) {
       await User.findByIdAndUpdate(req.dbUser._id, { plan: 'pro' });
+      
+      const redirectUrl = process.env.CLIENT_URL || 'http://localhost:5173';
       return res.json({ 
-        url: `${process.env.CLIENT_URL}/dashboard?status=success&demo=true`,
+        url: `${redirectUrl}/dashboard?status=success&demo=true`,
         message: 'Demo Mode: Plan upgraded to Pro successfully!' 
       });
     }
 
+    // 2. Standard Mode: Check for Stripe configuration
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(400).json({ 
+        error: 'Payment system not configured. Set DEMO_MODE=true in your environment variables to enable the one-click upgrade for testing.' 
+      });
+    }
+
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -49,6 +60,10 @@ router.post('/webhook', express.raw({type: 'application/json'}), async (req, res
   let event;
 
   try {
+    if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+      throw new Error('Stripe is not configured');
+    }
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
